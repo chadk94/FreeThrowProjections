@@ -2,8 +2,14 @@ import pandas as pd
 import time
 from nba_api.stats.endpoints import cumestatsplayer, cumestatsplayergames, commonplayerinfo
 from nba_api.stats.static import players
+from nba_api.stats.endpoints import boxscoretraditionalv2
+from nba_api.stats.endpoints import LeagueGameLog
 import nbaconstants
 
+def get_player_box():
+    #returns all player box scors or the season
+   playerbox=LeagueGameLog(player_or_team_abbreviation='P').get_data_frames()[0]
+   return playerbox
 
 # Returns a list of active player id's
 def get_active_player_ids():
@@ -22,7 +28,7 @@ def get_active_player_data(season, season_type, last_ten):
     ids_active_players = get_active_player_ids()
     df_player_stats = pd.DataFrame()
 
-    print(ids_active_players)
+    print(ids_active_players) #todo remove this
 
     time.sleep(1)
 
@@ -38,17 +44,20 @@ def get_active_player_data(season, season_type, last_ten):
 
         # Collects a dict of player data for the sole purpose of identifying game_id's.
         # This could probably be optimized.
-
-        try:
-            p_games = cumestatsplayergames.CumeStatsPlayerGames(
-                active_player_id,
-                league_id='00',
-                season=season,
-                season_type_all_star=season_type
-            ).cume_stats_player_games.get_dict()['data']
-        except:
-            p_games = []
-            print('FAILED pulling game info for ' + str(active_player_id))
+        while True:
+            try:
+                p_games = cumestatsplayergames.CumeStatsPlayerGames(
+                    active_player_id,
+                    league_id='00',
+                    season=season,
+                    season_type_all_star=season_type
+                ).cume_stats_player_games.get_dict()['data']
+            except:
+                p_games = []
+                print('FAILED pulling game info for ' + str(active_player_id) + ' Pausing and Trying again')
+                time.sleep(2)
+                continue
+            break
 
         # Code block creates a string of game_id's in proper format: '0022200047|0022200030|0022200022'
         game_ids = ''
@@ -63,12 +72,16 @@ def get_active_player_data(season, season_type, last_ten):
         game_ids = game_ids[:len(game_ids) - 1]
 
         # print('game ids located for ' + str(active_player_id))
-        try:
-            p_stats = cumestatsplayer.CumeStatsPlayer(active_player_id, game_ids, league_id='00',
-                                                  season=season).total_player_stats.get_data_frame()
-        except:
-            p_stats = pd.DataFrame()
-            print('FAILED pulling stats for ' + str(active_player_id))
+        while True:
+            try:
+                p_stats = cumestatsplayer.CumeStatsPlayer(active_player_id, game_ids, league_id='00',
+                                                      season=season).total_player_stats.get_data_frame()
+            except:
+                p_stats = pd.DataFrame()
+                print('FAILED pulling stats for ' + str(active_player_id)+ ' pausing 2 seconds and trying again')
+                time.sleep(2)
+                continue
+            break
 
         df_player_stats = pd.concat([df_player_stats, p_stats], axis=0, ignore_index=True)
 
