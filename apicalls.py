@@ -6,10 +6,12 @@ from nba_api.stats.endpoints import boxscoretraditionalv2
 from nba_api.stats.endpoints import LeagueGameLog
 import nbaconstants
 
+
 def get_player_box():
-    #returns all player box scors or the season
-   playerbox=LeagueGameLog(player_or_team_abbreviation='P').get_data_frames()[0]
-   return playerbox
+    # returns all player box scors or the season
+    playerbox = LeagueGameLog(player_or_team_abbreviation='P').get_data_frames()[0]
+    return playerbox
+
 
 # Returns a list of active player id's
 def get_active_player_ids():
@@ -28,7 +30,7 @@ def get_active_player_data(season, season_type, last_ten):
     ids_active_players = get_active_player_ids()
     df_player_stats = pd.DataFrame()
 
-    print(ids_active_players) #todo remove this
+    print(ids_active_players)  # todo remove this
 
     time.sleep(1)
 
@@ -75,10 +77,10 @@ def get_active_player_data(season, season_type, last_ten):
         while True:
             try:
                 p_stats = cumestatsplayer.CumeStatsPlayer(active_player_id, game_ids, league_id='00',
-                                                      season=season).total_player_stats.get_data_frame()
+                                                          season=season).total_player_stats.get_data_frame()
             except:
                 p_stats = pd.DataFrame()
-                print('FAILED pulling stats for ' + str(active_player_id)+ ' pausing 2 seconds and trying again')
+                print('FAILED pulling stats for ' + str(active_player_id) + ' pausing 2 seconds and trying again')
                 time.sleep(2)
                 continue
             break
@@ -91,10 +93,8 @@ def get_active_player_data(season, season_type, last_ten):
 
         counter += 1
         time.sleep(0.2)
-    filename="playerstatsdf"
-    if last_ten==True:
-        filename+="last_ten"
+    filename = "playerstatsdf"
+    if last_ten == True:
+        filename += "last_ten"
     df_player_stats.to_pickle("playerstatsdf")
     print(df_player_stats)
-
-
