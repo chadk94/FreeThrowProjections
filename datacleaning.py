@@ -79,7 +79,6 @@ def buildplayer(data,Name,matchup,x): #TODO INTROUCE HOME/away
     X = pd.concat([lastx, season, dummies], axis=1)
     X = X.drop(['FT_PCTlastxgames', 'FG_PCTlastxgames', 'FG3_PCTlastxgames', 'FG_PCT', 'FG3_PCT', 'FT_PCT'], axis=1)
     X = X.fillna(0)
-    print (X.columns)
     X[matchup]=1
     player=X.iloc[0]
     return player

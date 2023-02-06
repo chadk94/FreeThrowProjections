@@ -20,15 +20,15 @@ import numpy as np
 import pandas as pd
 
 
-def create_model(X, y): #generate opposition variables
+def create_model(X, y):  # generate opposition variables
     """a function that takes in our player averages, last ten averages, opponent and other predictors to generate
     a model to predict FTA per 36 value for player. y=historical fta/36"""
-    dummies=pd.get_dummies(X['MATCHUP'])
-    X = X.drop('MATCHUP',axis=1)
-    X = pd.concat([X,dummies],axis=1)
-    X=X.drop(['FT_PCTlastxgames','FG_PCTlastxgames','FG3_PCTlastxgames','FG_PCT', 'FG3_PCT', 'FT_PCT'],axis=1)
-    X=X.fillna(0)
-    y= [0 if math.isnan(x) else x for x in y]
+    dummies = pd.get_dummies(X['MATCHUP'])
+    X = X.drop('MATCHUP', axis=1)
+    X = pd.concat([X, dummies], axis=1)
+    X = X.drop(['FT_PCTlastxgames', 'FG_PCTlastxgames', 'FG3_PCTlastxgames', 'FG_PCT', 'FG3_PCT', 'FT_PCT'], axis=1)
+    X = X.fillna(0)
+    y = [0 if math.isnan(x) else x for x in y]
     model = Lasso(alpha=1.0)
     cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)  # pretty typical numbers,can mess around later
     scores = cross_val_score(model, X, y, cv=cv, n_jobs=1)
@@ -37,14 +37,15 @@ def create_model(X, y): #generate opposition variables
     model.fit(X, y)
     return model
 
-def propbet(X,y):
+
+def propbet(X, y):
     scaler = StandardScaler()
     dummies = pd.get_dummies(X['MATCHUP'])
     X = X.drop('MATCHUP', axis=1)
     X = pd.concat([X, dummies], axis=1)
     X = X.drop(['FT_PCTlastxgames', 'FG_PCTlastxgames', 'FG3_PCTlastxgames', 'FG_PCT', 'FG3_PCT', 'FT_PCT'], axis=1)
     X = X.fillna(0)
-    print (X)
+    print(X)
     y = [0 if math.isnan(x) else x for x in y]
     X_train_val, X_test, y_train_val, y_test = train_test_split(
         X, y, test_size=.2, random_state=1)
@@ -94,13 +95,16 @@ def propbet(X,y):
     X['Model Predictions'] = elastic_preds
     return elastic_cv
 
+
 def predictandpoisson(X, ftpercent, model, line):
     """taking our created model and x values for upcoming games output our projected FTA/36 and use
     last ten games minutes average to get a final FTA number for the game, then use poisson to create distribution"""
     yhat = model.predict(X)
-    print (yhat)
-    yhat=yhat*(ftpercent/100)
-    print ("projected makes", yhat)
-    overodds = poisson.cdf(line, yhat)
-    underodds = 1 - poisson.cdf(line, yhat)
-    print (overodds,underodds)
+    yhat = float(yhat * ftpercent)
+    print("projected makes", yhat)
+    print (line,yhat)
+    line=float(line)
+    overodds = 1 - poisson.cdf(line, yhat)
+    underodds = poisson.cdf(line, yhat)
+    print("On a line of ",line, " Over odds are: ", overodds, " and Under odds are ", underodds)
+    return
