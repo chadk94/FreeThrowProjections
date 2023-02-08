@@ -100,11 +100,12 @@ def predictandpoisson(X, ftpercent, model, line):
     """taking our created model and x values for upcoming games output our projected FTA/36 and use
     last ten games minutes average to get a final FTA number for the game, then use poisson to create distribution"""
     yhat = model.predict(X)
+    yhat = yhat * X[0][0]/36 #convert out of per36
     yhat = float(yhat * ftpercent)
     print("projected makes", yhat)
-    print (line,yhat)
     line=float(line)
+    drawodds= poisson.pmf(line,yhat)
     overodds = 1 - poisson.cdf(line, yhat)
     underodds = poisson.cdf(line, yhat)
-    print("On a line of ",line, " Over odds are: ", overodds, " and Under odds are ", underodds)
-    return
+    print("On a line of ",line, " Over odds are: ", overodds, "Draw odds are: ",drawodds, " and Under odds are ", underodds-drawodds)
+    return [line,overodds,drawodds,underodds-drawodds]

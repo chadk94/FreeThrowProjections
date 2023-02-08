@@ -5,6 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import json
 import csv
+import time
+from selenium.webdriver.support import expected_conditions as EC
+
 
 def GetLines():
     '''A function that returns all outstanding FreeThrows Made Lines'''
@@ -76,3 +79,47 @@ def GetLines():
     excel = excel.reset_index(drop=True)
     print(excel)
     return excel
+
+def GetLines2():
+    #added an alterntiv direct scrape for when havingapi issues
+    driver = webdriver.Chrome()
+    driver.get("https://app.prizepicks.com/")
+
+    driver.find_element(By.CLASS_NAME, "close").click()
+    time.sleep(2)
+    driver.find_element(By.XPATH, "//div[@class='name'][normalize-space()='NBA']").click()
+    time.sleep(2)
+
+    # Wait for the stat-container element to be present and visible
+    stat_container = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CLASS_NAME, "stat-container")))
+
+    # Find all stat elements within the stat-container
+    # i.e. categories is the list ['Points','Rebounds',...,'Turnovers']
+    categories = driver.find_element(By.CSS_SELECTOR, ".stat-container").text.split('\n')
+
+    # Initialize empty list to store data
+    nbaPlayers = []
+
+    # Iterate over each stat element
+    for category in categories:
+        # Click the stat element
+        line = '-' * len(category)
+        print(line + '\n' + category + '\n' + line)
+        if category != 'Free Throws Made':
+            continue
+        driver.find_element(By.XPATH, f"//div[text()='{category}']").click()
+
+        projections = WebDriverWait(driver, 20).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".projection")))
+
+        for projection in projections:
+            names = projection.find_element(By.XPATH, './/div[@class="name"]').text
+            points = projection.find_element(By.XPATH, './/div[@class="presale-score"]').get_attribute('innerHTML')
+            opp = projection.find_element(By.XPATH, './/div[@class="opponent"]').text.replace('\n', '')
+            print(names, points, opp[-3:])
+
+            players = {'Name': names, 'Line': points, 'Opponent': opp[-3:]}
+
+            nbaPlayers.append(players)
+    return nbaPlayers
