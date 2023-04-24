@@ -30,8 +30,6 @@ def get_active_player_data(season, season_type, last_ten):
     ids_active_players = get_active_player_ids()
     df_player_stats = pd.DataFrame()
 
-    print(ids_active_players)  # todo remove this
-
     time.sleep(1)
 
     counter = 1

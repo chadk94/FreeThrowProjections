@@ -28,7 +28,9 @@ def create_model(X, y):  # generate opposition variables
     X = pd.concat([X, dummies], axis=1)
     X = X.drop(['FT_PCTlastxgames', 'FG_PCTlastxgames', 'FG3_PCTlastxgames', 'FG_PCT', 'FG3_PCT', 'FT_PCT'], axis=1)
     X = X.fillna(0)
+    X=X.values
     y = [0 if math.isnan(x) else x for x in y]
+    y=y.values
     model = Lasso(alpha=1.0)
     cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)  # pretty typical numbers,can mess around later
     scores = cross_val_score(model, X, y, cv=cv, n_jobs=1)
@@ -88,7 +90,7 @@ def propbet(X, y):
     print(f'Mean absolute error for ElasticNet model on validation set: {mae}')
     rmse = mean_squared_error(y_val, val_set_preds, squared=False)
     print(
-        f'Root mean squared error for ElasticNet model on validation set: {mae}')
+        f'Root mean squared error for ElasticNet model on validation set: {rmse}')
     for col, coef in zip(X_test.columns, elastic_cv.coef_):
         print(f"{col:<16}: {coef:>12,.7f}")
     elastic_preds = elastic_cv.predict(X)
@@ -108,4 +110,4 @@ def predictandpoisson(X, ftpercent, model, line):
     overodds = 1 - poisson.cdf(line, yhat)
     underodds = poisson.cdf(line, yhat)
     print("On a line of ",line, " Over odds are: ", overodds, "Draw odds are: ",drawodds, " and Under odds are ", underodds-drawodds)
-    return [line,overodds,drawodds,underodds-drawodds]
+    return [line,overodds,drawodds,underodds-drawodds,yhat]
