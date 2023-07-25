@@ -11,21 +11,23 @@ if __name__ == '__main__':
     pd.set_option('display.width', 400)
     pd.set_option('display.max_columns', 20)
     pd.set_option('display.max_rows', 100)
-    lines = pd.DataFrame(ppscrape.GetLines2())
-    #lines=pd.DataFrame([["Julius Randle","5.5", "PHI"],["Joel Embiid","9.5","MEM"]])
+    lines = pd.DataFrame(ppscrape.GetLines())
+    #lines=pd.DataFrame([["Kelsey Mitchell","3", "PHO"],["Diana Taurasi","3.5","IND"]])
     # columns=["name","line_score","description"])
     df = apicalls.get_player_box()
     per36 = datacleaning.convert_per_36(df)
-   # filter=df['MIN']>30
-    #df=df.where(filter)
-    #((df['FTM']).plot(kind='hist',bins=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]))
-    #matplotlib.pyplot.show()
+    filter=df['MIN']>25
+    df=df.where(filter)
+    ((df['REB']).plot(kind='hist'))
+    print ("variance= ", df['REB'].var())
+    print ("mean= ", df['REB'].mean())
+    matplotlib.pyplot.show()
     #(datacleaning.create_last_x(per36,"James Harden",5))
     #x, y = datacleaning.generate_x_y(per36,5)  # Run to generate model 5 best tested, TODO need to search in 5-10 range
     #storedx=x.to_pickle("storedx")
     #storedy=y.to_pickle("storedy")
     #finalmodel = model.propbet(x, y)
-    filename = "finalmodel.sav"
+    filename = "WNBAmodel.sav"
     #pickle.dump(finalmodel,open(filename,'wb'))
     finalmodel = pickle.load(open(filename, 'rb'))
     output = pd.DataFrame(columns=['Name', 'Line', 'Over_Odds', 'Draw_Odds', 'Under_Odds','Projected_Makes'])

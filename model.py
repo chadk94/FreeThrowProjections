@@ -104,7 +104,7 @@ def predictandpoisson(X, ftpercent, model, line):
     yhat = model.predict(X)
     yhat = yhat * X[0][0]/36 #convert out of per36
     yhat = float(yhat * ftpercent)
-    print("projected makes", yhat)
+    print("projected makes", yhat, " minutes ",X[0][0])
     line=float(line)
     drawodds= poisson.pmf(line,yhat)
     overodds = 1 - poisson.cdf(line, yhat)

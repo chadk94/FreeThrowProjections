@@ -7,9 +7,10 @@ from nba_api.stats.endpoints import LeagueGameLog
 import nbaconstants
 
 
-def get_player_box():
-    # returns all player box scors or the season
-    playerbox = LeagueGameLog(player_or_team_abbreviation='P').get_data_frames()[0]
+def get_player_box(seasontype="Regular Season"):
+    # returns all player box scores for the season
+    playerbox = LeagueGameLog(player_or_team_abbreviation='P',season_type_all_star=seasontype,league_id=10,season=nbaconstants.CURRENT_SEASON).get_data_frames()[0]
+    #10 wnba 00 nba 20 g league
     return playerbox
 
 

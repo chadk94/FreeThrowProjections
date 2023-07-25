@@ -3,7 +3,7 @@ from nba_api.stats.library.parameters import (
     PlayerOrTeamAbbreviation,
     SeasonTypeAllStar,
 )
-CURRENT_SEASON = '2022-23'
+CURRENT_SEASON = '2023-24'
 MIN_SEASON = 2006  # earliest available season in Covers data
 REGULAR_SEASON = SeasonTypeAllStar.regular
 PLAYER = PlayerOrTeamAbbreviation.player

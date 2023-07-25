@@ -71,7 +71,7 @@ def GetLines():
 
                             writer.writerow(row)
     lines=pandas.read_csv("projections.csv")
-    filter1 = lines['league'] == "NBA"
+    filter1 = lines['league'] == "WNBA"
     filter2 = lines['stat_type'] == "Free Throws Made"
     lines = lines.where(filter1 & filter2)
     lines=lines.dropna()
